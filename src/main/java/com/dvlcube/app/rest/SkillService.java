@@ -9,6 +9,7 @@ import java.util.Optional;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -39,7 +40,11 @@ public class SkillService implements MxFilterableBeanService<SkillBean, Long> {
 	@Override
 	@GetMapping
 	public Iterable<SkillBean> get(@RequestParam Map<String, String> params) {
-		return repo.firstPage();
+		if (params == null  || params.isEmpty()) {
+			return repo.firstPage(Sort.by(Sort.Direction.ASC, SkillBean.NAME));
+		} else {
+			return repo.findAllBy(params, null, Sort.by(Sort.Direction.ASC, SkillBean.NAME));
+		}
 	}
 
 	@Override
@@ -75,16 +80,25 @@ public class SkillService implements MxFilterableBeanService<SkillBean, Long> {
 	 */
 	@GetMapping("/group/{group}/filtered")
 	public List<SkillBean> getGroupFiltered(@PathVariable String group, @RequestParam Map<String, String> params) {
-		return repo.findAllBy(params, group);
+		return repo.findAllBy(params, group, null);
 	}
 
 	@GetMapping("/like")
-	public Iterable<SkillBean> getLike(@RequestParam(required = true) String id) {
-		return repo.findAllLike(id);
+	public Iterable<SkillBean> getLike(@RequestParam(required = true) String name) {
+		return repo.findAllLike(name,  SkillBean.NAME);
 	}
 
 	@DeleteMapping("/{id}")
 	public void delete(@PathVariable Long id) {
 		repo.deleteById(id);
+	}
+
+	@GetMapping("/exists")
+	public Boolean getExists(@RequestParam(required = true) Map<String, String> params) {
+		if (params == null  || params.isEmpty()) {
+			return !repo.firstPage().isEmpty();
+		} else {
+			return !repo.findAllBy(params, null, null).isEmpty();
+		}
 	}
 }

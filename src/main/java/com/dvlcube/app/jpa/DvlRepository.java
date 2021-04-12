@@ -135,7 +135,7 @@ public interface DvlRepository<T extends MxBean<?>, ID> extends PagingAndSorting
 	 * @since 17 de abr de 2019
 	 * @author Ulisses Lima
 	 */
-	List<T> findAllBy(Map<String, String> params, String group);
+	List<T> findAllBy(Map<String, String> params, String group, Sort sorting);
 
 	/**
 	 * @param id
@@ -143,5 +143,5 @@ public interface DvlRepository<T extends MxBean<?>, ID> extends PagingAndSorting
 	 * @since 29 de abr de 2019
 	 * @author Ulisses Lima
 	 */
-	List<T> findAllLike(String id);
+	List<T> findAllLike(String id, String idParam);
 }

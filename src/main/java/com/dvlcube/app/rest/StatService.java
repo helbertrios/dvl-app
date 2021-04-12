@@ -4,8 +4,10 @@ import static com.dvlcube.app.manager.data.e.Menu.MONITORING;
 import static com.dvlcube.utils.query.MxQuery.$;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -41,7 +43,12 @@ public class StatService implements MxService {
 	 */
 	@GetMapping
 	public List<Stat> get(@RequestParam Map<String, String> params) {
-		return Stats.values();
+				return Stats.values().stream()
+				.sorted( (e1, e2) ->
+						Long.compare(e2.getTotal(), e1.getTotal()) != 0
+								? Long.compare(e2.getTotal(), e1.getTotal())
+								: Long.compare((e2.getTotal()/e2.getCount()), (e1.getTotal()/e1.getCount()))
+				).collect(Collectors.toList());
 	}
 
 	/**

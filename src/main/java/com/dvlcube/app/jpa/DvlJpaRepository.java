@@ -12,10 +12,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -153,17 +150,19 @@ public class DvlJpaRepository<T extends MxBean<? extends Serializable>, ID exten
 
 	@Override
 	public List<T> findAllBy(Map<String, String> params) {
-		return findAllBy(params, null);
+		return findAllBy(params, null, null);
 	}
 
 	@Override
-	public List<T> findAllLike(String id) {
+	public List<T> findAllLike(String id, String idParam) {
 		if ($(id).isBlank())
 			return firstPage();
 
 		id = id.toLowerCase();
 
-		String idParam = "id";
+		if (idParam == null) {
+			idParam = "id";
+		}
 
 		Like like = ei.getJavaType().getAnnotation(Like.class);
 		if (like != null) {
@@ -182,14 +181,15 @@ public class DvlJpaRepository<T extends MxBean<? extends Serializable>, ID exten
 
 		return em.createQuery(//
 				"SELECT e FROM " + ei.getEntityName() //
-						+ " e WHERE lower(" + idParam + ") LIKE :id") //
+						+ " e WHERE lower(" + idParam + ") LIKE :id" //
+						+ " order by  lower(" + idParam + ")") //
 				.setParameter("id", "%" + id + "%") //
 				.setMaxResults(DEFAULT_PAGE_SIZE) //
 				.getResultList();
 	}
 
 	@Override
-	public List<T> findAllBy(Map<String, String> params, String group) {
+	public List<T> findAllBy(Map<String, String> params, String group,  Sort sorting) {
 		int lidvl = Optional.ofNullable($(params.remove("lidvl")).i()).orElse(DEFAULT_PAGE_SIZE * 5);
 
 		Class<T> type = ei.getJavaType();
@@ -227,7 +227,23 @@ public class DvlJpaRepository<T extends MxBean<? extends Serializable>, ID exten
 			}
 		}
 
-		q.orderBy(cb.desc(props.get("id")));
+		if (sorting == null || sorting.isEmpty())  {
+			q.orderBy(cb.desc(props.get("id")));
+		} else {
+			List<Order> orders = new ArrayList<>();
+
+			for ( Sort.Order ordem : sorting ) {
+				if (ordem.isAscending() ) {
+					orders.add(cb.asc(props.get(ordem.getProperty())));
+				} else {
+					orders.add(cb.desc(props.get(ordem.getProperty())));
+				}
+
+			}
+
+			q.orderBy(orders);
+		}
+
 
 		// TODO
 		// q.multiselect(cb.count(props), props.get("action"));

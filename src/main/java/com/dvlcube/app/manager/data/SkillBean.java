@@ -17,9 +17,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  */
 @Entity
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Table(uniqueConstraints = { @UniqueConstraint(columnNames = "name") })
+@Table(uniqueConstraints = { @UniqueConstraint(columnNames = SkillBean.NAME) })
 public class SkillBean implements Nameable, MxBean<Long>, Presentable {
 	private static final long serialVersionUID = 1L;
+	public static final String NAME = "name";
 	@Id
 	@GeneratedValue
 	private Long id;

@@ -27,7 +27,7 @@
 		<dependency>
 			<groupId>com.dvlcube.xpress</groupId>
 			<artifactId>dvl-core</artifactId>
-			<version>1.0</version>
+			<version>1.0.1</version>
 		</dependency>
 
 		<!-- spring boot -->
@@ -56,9 +56,9 @@
 
 		<!-- others -->
 		<dependency>
-			<groupId>org.postgresql</groupId>
-			<artifactId>postgresql</artifactId>
-			<scope>runtime</scope>
+			<groupId>com.oracle.jdbc</groupId>
+			<artifactId>ojdbc6</artifactId>
+			<version>11.2.0.4.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
